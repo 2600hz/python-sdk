@@ -61,7 +61,7 @@ class RestResource(object):
     def _initialize_extra_view_descriptions(self, view_descs):
         self.extra_views = []
         for view_desc in view_descs:
-            if hasattr(view_desc, "has_key"):
+            if isinstance(view_desc, dict):
                 result = view_desc
             else:
                 result = {"name": "get_" + view_desc, "path": view_desc}
@@ -111,7 +111,7 @@ class RestResource(object):
 
     def dict_to_string(self, in_dict):
         res = ''
-        for key, value in in_dict.iteritems():
+        for key, value in in_dict.items():
             res = res + key + '=' + value +'&'
         return res[:-1]
 

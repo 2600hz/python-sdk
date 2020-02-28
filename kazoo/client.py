@@ -14,7 +14,7 @@ class RestClientMetaClass(type):
     def __init__(cls, name, bases, dct):
         super(RestClientMetaClass, cls).__init__(name, bases, dct)
 
-        for key, value in dct.items():
+        for key, value in list(dct.items()):
             if hasattr(value, "plural_name"):
                 cls._add_resource_methods(key, value, dct)
 
@@ -171,11 +171,11 @@ class RestClientMetaClass(type):
 
         func = compile(func_definition, __file__, 'exec')
         d = {}
-        exec func in d
+        exec(func, d)
         return d[func_name]
 
 
-class Client(object):
+class Client(metaclass=RestClientMetaClass):
     """The interface to the Kazoo API
 
     This class should be initialized either with a username, password and
@@ -256,7 +256,6 @@ class Client(object):
         GET /accounts/{account_id}/users/hotdesk -> client.get_hotdesk(acct_id)
 
     """
-    __metaclass__ = RestClientMetaClass
     base_url = "http://api.2600hz.com:8000/v1"
     account_id= ""
     """
@@ -1546,7 +1545,7 @@ class Client(object):
         return self.auth_token
 
     def _execute_request(self, request, **kwargs):
-        from exceptions import KazooApiAuthenticationError
+        from .exceptions import KazooApiAuthenticationError
 
         if request.auth_required:
             kwargs["token"] = self.auth_token
@@ -1654,6 +1653,6 @@ class Client(object):
 
     def dict_to_string(self, in_dict):
         res = ''
-        for key, value in in_dict.iteritems():
+        for key, value in in_dict.items():
             res = res + key + '=' + value +'&'
         return res[:-1]
